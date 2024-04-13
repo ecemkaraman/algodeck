@@ -2,12 +2,32 @@
 
 ## Algorithm to reverse an array
 
-```java
-int i = 0;
-int j = a.length - 1;
-while (i < j) {
-	swap(a, i++, j--);
-}
+```python
+import array as arr
+
+a = arr.array('i', [1,2,3,4,5]) #declare the data type as int (i)
+
+# 1.Swap the elements at the opposite indexes
+l = len(a)
+# going through the array only halfway!!
+for i in range(l // 2):
+    a[i], a[l - i - 1] = a[l - i - 1], a[i] # swap the elements
+
+# 2. reverse() method ->fastest, suitable for long arrays
+a.reverse()
+
+# 3. reversed() method ->returns an iterator
+reversed_a = reversed(a)
+
+#4. Slicing - returns a reversed copy of the original array [::-1]
+reverse_a = a[::-1]
+
+#5. Using recursion
+def reverseArray(arr):
+    if len(arr) == 1:
+        return arr
+    #print(arr) ->You can uncomment this to know how recursion works
+    return reverseArray(arr[1:]) + arr[0:1]
 ```
 
 [#array](array.md)
@@ -26,20 +46,16 @@ Delete: O(n)
 
 ## Binary search in a sorted array algorithm
 
-```java
-int lo = 0, hi = a.length - 1;
-
-while (lo <= hi) {
-	int mid = lo + ((hi - lo) / 2);
-	if (a[mid] == key) {
-		return mid;
-	}
-	if (a[mid] < key) {
-		lo = mid + 1;
-	} else {
-		hi = mid - 1;
-	}
-}
+```python
+def binarySearch(nums: List[int], target: int) -> int:
+    l, r = 0, len(nums)
+    while l < r :
+        m = (l + r) // 2;
+        if nums[m] < target:
+            l = m + 1;
+        else: 
+            r = m;
+    return l;
 ```
 
 ### Further Reading
