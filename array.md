@@ -1,6 +1,6 @@
 # Array
 
-## Algorithm to reverse an array
+## 5 ways to reverse an array
 
 ```python
 import array as arr
@@ -70,58 +70,40 @@ Solution: binary search
 
 Check first if the array is rotated. If not, apply normal binary search
 
-If rotated, find pivot (smallest element, only element whose previous is bigger)
+If rotated, find pivot (the only element for which the next element to it is smaller than it)
+
+Find the sorted half (either 1 or both halves will be sorted) ->rotation pivot isn't always = mid
 
 Then, check if the element is in 0..pivot-1 or pivot..len-1
 
-```java
-int findElementRotatedArray(int[] a, int val) {
-	// If array not rotated
-	if (a[0] < a[a.length - 1]) {
-		// We apply the normal binary search
-		return binarySearch(a, val, 0, a.length - 1);
-	}
+```python
+def search(self, nums: List[int], target: int) -> int:
+	left, right = 0, len(nums) - 1
 
-	int pivot = findPivot(a);
+        while left <= right:
+            mid = (left + right) // 2
 
-	if (val >= a[0] && val <= a[pivot - 1]) {
-		// Element is before the pivot
-		return binarySearch(a, val, 0, pivot - 1);
-	} else if (val >= a[pivot] && val < a.length - 1) {
-		// Element is after the pivot
-		return binarySearch(a, val, pivot, a.length - 1);
-	}
-	return -1;
+            if nums[mid] == target:
+                return mid
+
+            # Check if left half is sorted
+            if nums[left] <= nums[mid]:
+                if nums[left] <= target < nums[mid]:
+                    right = mid - 1
+                else:
+                    left = mid + 1
+            # Otherwise, right half is sorted
+            else:
+                if nums[mid] < target <= nums[right]:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+
+        return -1
 }
 ```
-
-[#array](array.md)
-
-## Given an array, move all the 0 to the left while maintaining the order of the other elements
-   
-Example: 1, 0, 2, 0, 3, 0 => 0, 0, 0, 1, 2, 3
-
-Two pointers technique: read and write starting at the end of the array
-
-If read is on a 0, decrement read. Otherwise swap, decrement both
-
-```java
-public void move(int[] a) {
-	int w = a.length - 1, r = a.length - 1;
-	while (r >= 0) {
-		if (a[r] == 0) {
-			r--;
-		} else {
-			swap(a, r--, w--);
-		}
-	}
-}
-```
-
-Time complexity: O(n)
-
+Time complexity: O(log n)
 Space complexity: O(1)
-
 [#array](array.md)
 
 ## How to detect if an element is a pivot in a rotated sorted array
@@ -132,37 +114,66 @@ Only element whose previous is bigger (also the pivot is the smallest element)
 
 ## How to find a pivot element in a rotated array
 
-Check first if the array is rotated
+Binary search -> left, right = 0, len(a)-1
+if a[mid-1] > a[mid], pivot = mid-1
+else if a[mid+1] < a[mid], pivot = mid
 
-Then, apply binary search (comparison with a[right] to know if we go left or right)
+ if a[left] > a[mid], consider left half. O/w right half
 
-```java
-int findPivot(int[] a) {
-	int left = 0, right = a.length - 1;
+Pivot = the index where the array rotation occurred - aka highest value
+eg. arr[] = {3, 4, 5, 1, 2}, pivot=5
 
-	// Array is not rotated
-	if (a[left] < a[right]) {
-		return -1;
-	}
+COME BACK LATER
+```python
+def find_pivot(arr):
+    left, right = 0, len(arr) - 1
+    
+    while left < right:
+        mid = (left + right) // 2
+        
+        # If mid > first element, pivot is on the right side
+        if arr[mid-1] < arr[mid]:
+            left = mid 
+        else:
+            right = mid
+    
+    # When left == right, we've found the pivot.
+    return left
 
-	while (left <= right) {
-		int mid = left + ((right - left) / 2);
-		if (mid > 0 && a[mid] < a[mid - 1]) {
-			return a[mid];
-		}
-
-		if (a[mid] < a[right]) {
-			// Pivot is on the left
-			right = mid - 1;
-		} else {
-			// Pivot is on the right
-			left = mid + 1;
-		}
-	}
-
-	return -1;
-}
+# Example usage:
+arr = [4, 5, 6, 7, 0, 1, 2]
+pivot_index = find_pivot(arr)
+print("Pivot index:", pivot_index)
+print("Pivot element:", arr[pivot_index])
 ```
+
+[#array](array.md)
+
+## Given an array, move all the 0 to the left while maintaining the order of the other elements
+   
+Example: 1, 0, 2, 0, 3, 0 => 0, 0, 0, 1, 2, 3
+
+Two pointers: Move all non zero numbers to the left. 
+Both L&R start at 0. 
+left = where the next non-zero element will be moved
+right = index of the current element being processed
+
+If current element is non-zero, swap left&right
+
+```python
+def moveZeroes(self, nums: List[int]) -> None:
+        left = 0
+
+        for right in range(len(nums)):
+            if nums[right] != 0:
+                nums[right], nums[left] = nums[left], nums[right]
+                left += 1
+        
+        return nums
+```
+
+Time complexity: O(n)
+Space complexity: O(1)
 
 [#array](array.md)
 
@@ -197,20 +208,24 @@ Example: 1, 2, 3, 4, 5 with n = 3 => 3, 4, 5, 1, 2
 - Reverse from 0 to n-1
 - Reverse from n to len - 1
 
-```java
-void rotateArray(List<Integer> a, int n) {
-	if (n < 0) {
-		n = a.size() + n;
-	}
-
-	reverse(a, 0, a.size() - 1);
-	reverse(a, 0, n - 1);
-	reverse(a, n, a.size() - 1);
-}
+```python
+def rotate(self, nums: List[int], k: int) -> None:
+        def rev(l, r):
+            while l < r:
+                nums[l], nums[r] = nums[r], nums[l]
+                l += 1
+                r -= 1
+        
+        n = len(nums)
+	k = ((k * -1) % n) * -1 if k < 0 else k % n; # Case when k>n or k<-n
+	k = (n - (k * -1)) if k < 0 else k; # Case when k is negative
+        
+        rev(0, n-1)  # Reverse the entire array
+        rev(0, k-1)  # Reverse the first k elements
+        rev(k, n-1)  # Reverse the remaining elements
 ```
 
 Time complexity: O(n)
-
-Memory complexity: O(1)
+Space complexity: O(1)
 
 [#array](array.md)
